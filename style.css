@@ -1,0 +1,724 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: linear-gradient(135deg, #fff0f5 0%, #ffd1dc 100%);
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+    color: #333;
+    touch-action: none;
+}
+
+#bg-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ====== ROMANTIC TRANSITION OVERLAY ====== */
+#transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    overflow: hidden;
+    transition: none;
+}
+
+#transition-overlay.playing {
+    pointer-events: all;
+    animation: overlayFade 2.2s ease-in-out forwards;
+}
+
+/* Nền gợn sóng hồng lan rộng */
+#transition-overlay::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255, 160, 200, 0.9) 0%, rgba(255, 220, 235, 0.6) 45%, transparent 70%);
+    transform: scale(0);
+    opacity: 0;
+}
+
+#transition-overlay.playing::before {
+    animation: rippleExpand 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Vòng sáng rực phía sau */
+#transition-overlay::after {
+    content: '';
+    position: absolute;
+    width: 60vmin;
+    height: 60vmin;
+    background: radial-gradient(circle, rgba(255, 200, 220, 0.7) 0%, rgba(255, 230, 240, 0.3) 55%, transparent 75%);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 0;
+}
+
+#transition-overlay.playing::after {
+    animation: glowPulse 2.2s ease-out forwards;
+}
+
+@keyframes overlayFade {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes rippleExpand {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    20% {
+        transform: scale(0.6);
+        opacity: 1;
+    }
+
+    60% {
+        transform: scale(1.2);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    30% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    60% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* Hoa chính giữa xoay */
+.transition-heart {
+    position: relative;
+    font-size: 6rem;
+    z-index: 2;
+    opacity: 0;
+    filter: drop-shadow(0 0 20px rgba(220, 80, 150, 0.8));
+}
+
+#transition-overlay.playing .transition-heart {
+    animation: heartBoom 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes heartBoom {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(-30deg);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1.4) rotate(10deg);
+    }
+
+    35% {
+        opacity: 1;
+        transform: scale(0.9) rotate(-5deg);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15) rotate(3deg);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(2) rotate(15deg);
+    }
+}
+
+/* Vòng cánh hoa quay xung quanh */
+.transition-petals-ring {
+    position: absolute;
+    font-size: 2.5rem;
+    opacity: 0;
+}
+
+#transition-overlay.playing .transition-petals-ring {
+    animation: petalOrbit 2.2s ease-out forwards;
+}
+
+@keyframes petalOrbit {
+    0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg) translateX(0px);
+    }
+
+    25% {
+        opacity: 1;
+        transform: scale(1) rotate(90deg) translateX(60px);
+    }
+
+    60% {
+        opacity: 0.8;
+        transform: scale(1) rotate(200deg) translateX(80px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg) translateX(110px);
+    }
+}
+
+/* Các cánh hoa bay tứ phía (JS inject) */
+.fly-petal {
+    position: absolute;
+    font-size: 1.8rem;
+    pointer-events: none;
+    animation: flyOut 2.2s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes flyOut {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0) rotate(0deg);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translate(var(--tx1), var(--ty1)) scale(1.2) rotate(var(--r1));
+    }
+
+    60% {
+        opacity: 0.8;
+        transform: translate(var(--tx2), var(--ty2)) scale(0.9) rotate(var(--r2));
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx3), var(--ty3)) scale(0.4) rotate(var(--r3));
+    }
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 2;
+    padding: 10px;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.glass-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 1);
+    border-radius: 20px;
+    padding: 18px 18px 14px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 96vh;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(164, 80, 139, 0.15);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(0);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    animation: fadeInPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.glass-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 45px rgba(164, 80, 139, 0.2);
+}
+
+@keyframes fadeInPop {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.main-container {
+    height: 96vh;
+}
+
+.title-wrapper {
+    flex-shrink: 0;
+}
+
+.upload-wrapper {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.upload-wrapper.ready {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.preview-area {
+    position: relative;
+    height: 40vh;
+    width: calc(40vh * 2 / 3);
+    max-width: 100%;
+    margin: 0 auto 8px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #f8f8f8;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Custom Cropper Styles for Seamless Frame Overlay */
+.cropper-view-box {
+    outline: none !important;
+    background: transparent !important;
+}
+
+.cropper-line,
+.cropper-point,
+.cropper-dashed,
+.cropper-center {
+    display: none !important;
+}
+
+.cropper-modal {
+    background-color: transparent !important;
+}
+
+.cropper-bg {
+    background-image: none !important;
+    background-color: transparent !important;
+}
+
+#crop-preview-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ====== STEP 3 FULLSCREEN RESULT LAYOUT ====== */
+.screen-result {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+}
+
+.result-header {
+    flex-shrink: 0;
+    width: 100%;
+    text-align: center;
+    padding: 4px 0 6px;
+}
+
+.result-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #a4508b;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.result-canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#final-result-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(164, 80, 139, 0.2);
+    display: block;
+}
+
+.result-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    padding-top: 8px;
+}
+
+.carousel-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #a4508b;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ====== SCROLL HINT WRAPPER ====== */
+.scroll-hint-wrap {
+    position: relative;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* Gradient mờ viền phải gợi ý còn nội dung */
+.scroll-hint-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 52px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 245, 250, 0.97));
+    pointer-events: none;
+    border-radius: 0 8px 8px 0;
+    z-index: 5;
+    transition: opacity 0.4s ease;
+}
+
+/* Ẩn gradient khi đã scroll sang phải hết */
+.scroll-hint-wrap.scrolled-end::after {
+    opacity: 0;
+}
+
+/* Mũi tên chevron nhấp nháy */
+.scroll-hint-arrow {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 6;
+    font-size: 1.3rem;
+    color: #c06090;
+    font-weight: bold;
+    pointer-events: none;
+    animation: arrowBounce 1.4s ease-in-out infinite;
+    text-shadow: 0 0 6px rgba(192, 96, 144, 0.5);
+    transition: opacity 0.4s ease;
+}
+
+.scroll-hint-wrap.scrolled-end .scroll-hint-arrow {
+    opacity: 0;
+}
+
+@keyframes arrowBounce {
+    0% {
+        transform: translateY(-50%) translateX(0px);
+        opacity: 0.5;
+    }
+
+    40% {
+        transform: translateY(-50%) translateX(5px);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translateY(-50%) translateX(5px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-50%) translateX(0px);
+        opacity: 0.5;
+    }
+}
+
+.frame-carousel {
+    width: 100%;
+    margin-bottom: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: rgba(245, 245, 245, 0.8);
+    padding: 6px;
+}
+
+.frame-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.frame-list {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-carousel {
+    width: 100%;
+    margin-bottom: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+}
+
+.filter-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-list {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 4px;
+}
+
+.filter-btn {
+    padding: 8px 14px;
+    border: 1px solid #d4a5c9;
+    background: transparent;
+    color: #a4508b;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: #a4508b;
+    color: #fff;
+}
+
+.frame-item {
+    min-width: 65px;
+    height: 75px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    color: #555;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.frame-item.active {
+    border-color: #a4508b;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(164, 80, 139, 0.2);
+    z-index: 10;
+    font-weight: 600;
+    color: #a4508b;
+}
+
+.main-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    background: linear-gradient(to right, #a4508b, #5f0a87);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+    line-height: 1.3;
+    padding-bottom: 8px;
+    /* Khắc phục lỗi lẹm font khi xài clip text */
+    font-weight: 600;
+}
+
+.sub-title {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+    outline: none;
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-direction: column;
+}
+
+@media (min-width: 400px) {
+    .action-buttons {
+        flex-direction: row;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        margin-bottom: 0;
+        flex: 1;
+    }
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a4508b 0%, #5f0a87 100%);
+    border: none;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(164, 80, 139, 0.3);
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1.5px solid #a4508b;
+    color: #a4508b;
+}
+
+.btn-secondary:active {
+    transform: scale(0.97);
+    background: rgba(164, 80, 139, 0.05);
+}
+
+.note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 15px;
+    font-style: italic;
+}
+
+.loader-box {
+    max-width: 250px;
+    padding: 25px 20px;
+}
+
+.loader-box p {
+    color: #5f0a87;
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.heart-loader {
+    font-size: 3rem;
+    animation: float 1.5s ease-in-out infinite;
+}
+
+.ai-quote-box {
+    background: rgba(255, 255, 255, 1);
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 5px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ai-quote-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #a4508b;
+    margin-bottom: 8px;
+}
+
+#ai-quote-display {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #444;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
