@@ -194,6 +194,13 @@ function initCropper() {
         ready: function () {
             updateFrameOverlay();
             applyFilterToPreview();
+
+            // Hiện lại hướng dẫn kéo khi có ảnh mới
+            document.getElementById('drag-hint').classList.remove('hidden');
+        },
+        cropstart: function () {
+            // Ẩn hướng dẫn ngay khi người dùng bắt đầu chạm/kéo ảnh
+            document.getElementById('drag-hint').classList.add('hidden');
         }
     });
 }
