@@ -196,11 +196,14 @@ function initCropper() {
             applyFilterToPreview();
 
             // Hiện lại hướng dẫn kéo khi có ảnh mới
-            document.getElementById('drag-hint').classList.remove('hidden');
-        },
-        cropstart: function () {
-            // Ẩn hướng dẫn ngay khi người dùng bắt đầu chạm/kéo ảnh
-            document.getElementById('drag-hint').classList.add('hidden');
+            const hint = document.getElementById('drag-hint');
+            hint.classList.remove('hidden');
+
+            // Ẩn hướng dẫn khi người dùng chạm vào ảnh
+            const hideHint = () => hint.classList.add('hidden');
+            const previewArea = document.getElementById('preview-area-wrap');
+            previewArea.addEventListener('touchstart', hideHint, { once: true });
+            previewArea.addEventListener('mousedown', hideHint, { once: true });
         }
     });
 }
