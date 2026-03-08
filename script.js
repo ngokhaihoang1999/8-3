@@ -1,5 +1,19 @@
 ﻿const bgCanvas = document.getElementById('bg-canvas');
 const bgCtx = bgCanvas.getContext('2d');
+
+// --- PHÁT HIỆN TRÌNH DUYỆT NỘI BỘ (IN-APP BROWSER) ---
+function checkInAppBrowser() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isInApp = /Telegram|FBAN|FBAV|Instagram|Messenger|Line|Zalo/i.test(ua);
+
+    // Nếu là Telegram hoặc các app có trình duyệt nội bộ hạn chế
+    if (isInApp) {
+        const warning = document.getElementById('browser-warning');
+        if (warning) warning.style.display = 'flex';
+    }
+}
+window.addEventListener('DOMContentLoaded', checkInAppBrowser);
+
 let bgWidth, bgHeight;
 let particles = [];
 function initBg() {

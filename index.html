@@ -5,7 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Thiệp 8/3 - Tôn vinh vẻ đẹp</title>
-    <link rel="stylesheet" href="style.css">
+
+    <!-- Meta Tags cho Telegram/Social Preview -->
+    <meta property="og:title" content="🌸 Thiệp 8/3 Rạng Rỡ - Gửi Trọn Yêu Thương">
+    <meta property="og:description"
+        content="Tạo ngay tấm thiệp độc bản chỉ trong 30 giây tặng người phụ nữ bạn yêu thương nhất.">
+    <meta property="og:image" content="https://ngokhaihoang1999.github.io/8-3/khung/khung%201.png">
+    <meta property="og:url" content="https://ngokhaihoang1999.github.io/8-3/">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="style.css?v=1.1">
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
         rel="stylesheet">
@@ -14,6 +23,19 @@
 </head>
 
 <body>
+    <!-- Thông báo nếu mở bằng trình duyệt nội bộ của Telegram/App khác -->
+    <div id="browser-warning" style="display: none;">
+        <div class="warning-box">
+            <span class="warning-icon">🌸</span>
+            <h3>Chào bạn thân mến!</h3>
+            <p>Để <b>chụp ảnh selfie</b> và <b>tải thiệp về máy</b> thành công, vui lòng mở trang này bằng trình duyệt
+                <b>Chrome</b> hoặc <b>Safari</b> nhé.</p>
+            <div class="warning-step">1. Nhấn nút <b>⋮</b> hoặc <b>⋯</b> ở góc trên cùng bên phải.</div>
+            <div class="warning-step">2. Chọn <b>"Mở bằng trình duyệt ngoài"</b> (Open in Browser).</div>
+            <button onclick="document.getElementById('browser-warning').style.display='none'" class="btn-secondary"
+                style="margin-top: 20px;">Tôi đã hiểu và muốn tiếp tục</button>
+        </div>
+    </div>
     <canvas id="bg-canvas"></canvas>
 
     <!-- Hiệu ứng chuyển cảnh lãng mạn -->
